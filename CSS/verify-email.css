@@ -1,0 +1,27 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #e8f0fe;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.box {
+  background: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  width: 320px;
+  text-align: center;
+}
+
+h2 {
+  color: #333;
+}
+
+.message {
+  margin-top: 20px;
+  font-weight: bold;
+}
