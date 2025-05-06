@@ -1,0 +1,77 @@
+/* CSS/login.css */
+body {
+    font-family: 'Arial', sans-serif;
+    background: #030304;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  
+  .login-container {
+    background: rgb(38, 37, 37);
+    padding: 50px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(241, 237, 237, 0.1);
+    width: 350px;
+  }
+  
+  h2 {
+    text-align: center;
+    color: #e5ecf5;
+  }
+  
+  input {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border: 1px solid #9caacf;
+    border-radius: 6px;
+    font-size: 16px;
+  }
+  
+  button {
+    width: 107%;
+    padding: 12px;
+    background: #16d164;
+    color: rgb(236, 235, 235);
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  button:hover {
+    background: #15a051;
+  }
+  
+  .message {
+    color: red;
+    text-align: center;
+    margin: 10px 0;
+    font-size: 14px;
+  }
+  
+  .links {
+    text-align: center;
+    margin-top: 15px;
+  }
+  
+  .links a {
+    color: #1877f2;
+    text-decoration: none;
+    font-size: 14px;
+  }
+  
+  .links a:hover {
+    text-decoration: underline;
+  }
+  
+  .signup-link {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #edebe9;
+  }
