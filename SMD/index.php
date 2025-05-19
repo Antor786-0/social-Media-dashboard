@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>SocialApp</title>
-  <link rel="stylesheet" href="assets/CSS/">
+  <link rel="stylesheet" href="assets/CSS/index.css">
 </head>
 <body>
   <div class="container">
@@ -14,6 +14,5 @@
       <a href="view/contact.html" class="btn contact">Contact Us</a>
     </div>
   </div>
-  <script src="../social Media dashboard/index.html"></script>
 </body>
 </html>
