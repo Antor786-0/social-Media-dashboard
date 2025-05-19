@@ -1,6 +1,6 @@
 body {
     font-family: 'Arial', sans-serif;
-    background: #f0f2f5;
+    background: #080909;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -10,7 +10,7 @@ body {
   
   .container {
     text-align: center;
-    background: white;
+    background: rgb(50, 49, 49);
     padding: 40px;
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
@@ -18,7 +18,7 @@ body {
   }
   
   h1 {
-    color: #1877f2;
+    color: #eaedea;
     margin-bottom: 30px;
   }
   
@@ -37,19 +37,19 @@ body {
   }
   
   .signup {
-    background: #42b72a;
+    background: #2a73b7;
     color: white;
   }
   
   .login {
-    background: #1877f2;
+    background: #18f226;
     color: white;
   }
   
   .contact {
-    background: white;
-    color: #1877f2;
-    border: 1px solid #dddfe2;
+    background: rgb(223, 19, 19);
+    color: #f2f7f1;
+    border: 1px solid #0a0f16;
   }
   
   .btn:hover {
