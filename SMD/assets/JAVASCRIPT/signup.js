@@ -1,27 +1,31 @@
-// JAVASCRIPT/signup.js
 document.getElementById('signupForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const username = document.getElementById('username').value;
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    
-    // Simple validation
-    if (password !== confirmPassword) {
-      document.getElementById('message').textContent = "Passwords don't match!";
-      return;
-    }
-    
-    if (password.length < 6) {
-      document.getElementById('message').textContent = "Password must be at least 6 characters!";
-      return;
-    }
+  e.preventDefault();
 
-    
-    // Store in localStorage for demo purposes
-    localStorage.setItem('tempEmail', email);
-    
-    // Redirect to verification page
-    window.location.href = 'verify-email.html';
+  const form = document.getElementById('signupForm');
+  const formData = new FormData(form);
+
+  const password = formData.get('password');
+  const confirmPassword = formData.get('confirmPassword');
+
+  if (password !== confirmPassword) {
+    document.getElementById('message').textContent = "Passwords don't match!";
+    return;
+  }
+
+  if (password.length < 6) {
+    document.getElementById('message').textContent = "Password must be at least 6 characters!";
+    return;
+  }
+
+  fetch('../controller/signup.php', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.text())
+  .then(data => {
+    document.getElementById('message').textContent = data;
+  })
+  .catch(error => {
+    document.getElementById('message').textContent = "Error: " + error;
   });
+});

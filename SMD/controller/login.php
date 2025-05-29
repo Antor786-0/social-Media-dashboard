@@ -1,70 +1,81 @@
 <?php
-session_start(); // Start session to store error messages
+session_start();
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+header('Content-Type: application/json');
 
-// Function to validate email
-function validateEmail($email) {
-    if (empty($email)) {
-        return "Please enter your email.";
-    }
+require_once("../model/db.php"); // Ensure this file is clean: no echo, no space
 
-    if (strpos($email, '@') === false || strpos($email, '.') === false) {
-        return "Email must contain '@' and '.'";
-    }
+// Prevent accidental output before JSON
+ob_start();
+session_start();
+require_once("../model/db.php"); // Include your DB connection
 
-    $atPosition = strpos($email, '@');
-    $dotPosition = strrpos($email, '.');
+header('Content-Type: application/json');
 
-    if (
-        $atPosition < 1 ||
-        $dotPosition < $atPosition + 2 ||
-        $dotPosition + 1 >= strlen($email)
-    ) {
-        return "Invalid email format.";
-    }
-
-    return true;
-}
-
-// Function to validate password
-function validatePassword($password) {
-    if (empty($password)) {
-        return "Password is empty";
-    }
-
-    if (strlen($password) < 6) {
-        return "Password must be at least 6 characters";
-    }
-
-    return true;
-}
-
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = isset($_POST['email']) ? trim($_POST['email']) : '';
-    $password = isset($_POST['password']) ? trim($_POST['password']) : '';
-
-    // Validate inputs
-    $emailResult = validateEmail($email);
-    $passwordResult = validatePassword($password);
-
-    // Check for validation errors
-    if ($emailResult !== true) {
-        $_SESSION['message'] = $emailResult;
-    } elseif ($passwordResult !== true) {
-        $_SESSION['message'] = $passwordResult;
-    } else {
-        // Validation passed; proceed with authentication
-        // Replace with actual authentication (e.g., database check)
-        header('Location: ../view/dashboard.html');
-        exit();
-    }
-
-    // Redirect back to login page with error message
-    header('Location: ../index.html');
-    exit();
-} else {
-    // Redirect to login page if accessed directly
-    header('Location: ../index.html');
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode(["success" => false, "message" => "Invalid request method"]);
     exit();
 }
+
+$email = trim($_POST['email'] ?? '');
+$password = trim($_POST['password'] ?? '');
+
+// Validate email
+if (empty($email)) {
+    echo json_encode(["success" => false, "message" => "Please enter your email."]);
+    exit();
+}
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    echo json_encode(["success" => false, "message" => "Invalid email format."]);
+    exit();
+}
+
+// Validate password
+if (empty($password)) {
+    echo json_encode(["success" => false, "message" => "Password is empty."]);
+    exit();
+}
+if (strlen($password) < 6) {
+    echo json_encode(["success" => false, "message" => "Password must be at least 6 characters."]);
+    exit();
+}
+
+// Prepare and execute DB query
+$stmt = $conn->prepare("SELECT id, username, password FROM users WHERE email = ?");
+if (!$stmt) {
+    echo json_encode(["success" => false, "message" => "Database error: " . $conn->error]);
+    exit();
+}
+
+$stmt->bind_param("s", $email);
+$stmt->execute();
+$stmt->store_result();
+
+if ($stmt->num_rows !== 1) {
+    echo json_encode(["success" => false, "message" => "User not found with that email."]);
+    $stmt->close();
+    $conn->close();
+    exit();
+}
+
+$stmt->bind_result($id, $username, $hashedPassword);
+$stmt->fetch();
+
+if (!password_verify($password, $hashedPassword)) {
+    echo json_encode(["success" => false, "message" => "Incorrect password."]);
+    $stmt->close();
+    $conn->close();
+    exit();
+}
+
+// Login successful, set session variables
+$_SESSION['user_id'] = $id;
+$_SESSION['username'] = $username;
+
+echo json_encode(["success" => true, "message" => "Login successful!"]);
+
+$stmt->close();
+$conn->close();
+exit();
 ?>

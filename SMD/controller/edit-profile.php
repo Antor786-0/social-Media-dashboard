@@ -1,55 +1,57 @@
 <?php
 session_start();
-echo "I am loaded";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $displayName = $_POST['displayName'] ?? '';
-    $bio = $_POST['bio'] ?? '';
-    $theme = $_POST['theme'] ?? '';
-    $profilePhoto = $_FILES['profileUpload'] ?? null;
-    $uploadOk = true;
+if (!isset($_SESSION['user_id'])) {
+    $_SESSION['user_id'] = 1;
+}
 
-    // Validate file
-    if ($profilePhoto && $profilePhoto['name']) {
-        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-        if (!in_array($profilePhoto['type'], $allowedTypes)) {
-            $_SESSION['message'] = "Invalid profile photo format! Only JPEG, PNG, or GIF allowed.";
-            $_SESSION['message_type'] = "error";
-            $uploadOk = false;
-        }
+if (!isset($_SESSION['user_id'])) {
+    echo json_encode(["error" => "You are not logged in!"]);
+    exit;
+}
+
+$userId = $_SESSION['user_id'];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // Directory where you want to save uploads
+    $uploadDir = __DIR__ . "/../assets/uploads/";
+
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0755, true);
     }
 
-    if ($uploadOk) {
-        // Save values in session (simulating a database)
-        $_SESSION['displayName'] = $displayName;
-        $_SESSION['bio'] = $bio;
-        $_SESSION['theme'] = $theme;
+    if (isset($_FILES['profileUpload']) && $_FILES['profileUpload']['error'] === UPLOAD_ERR_OK) {
 
-        // Handle image upload
-        if ($profilePhoto && $profilePhoto['name']) {
-            $targetDir = "../assets/uploads/";
-            if (!is_dir($targetDir)) {
-                mkdir($targetDir, 0755, true);
-            }
+        $fileTmpPath = $_FILES['profileUpload']['tmp_name'];
+        $fileName = basename($_FILES['profileUpload']['name']);
+        $fileSize = $_FILES['profileUpload']['size'];
+        $fileType = $_FILES['profileUpload']['type'];
 
-            $uniqueName = uniqid() . "_" . basename($profilePhoto['name']);
-            $targetFile = $targetDir . $uniqueName;
+        // Optional: You can check file extension/type here for security
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'heic'];
+        $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
-            if (move_uploaded_file($profilePhoto['tmp_name'], $targetFile)) {
-                $_SESSION['profilePhoto'] = $targetFile;
-            } else {
-                $_SESSION['message'] = "Error uploading the profile photo.";
-                $_SESSION['message_type'] = "error";
-                header("Location: ../view/dashboard.html");
-                exit();
-            }
+        if (!in_array($fileExtension, $allowedExtensions)) {
+            echo json_encode(["error" => "Invalid file type. Only jpg, jpeg, png, gif allowed."]);
+            exit;
         }
 
-        $_SESSION['message'] = "Profile updated successfully!";
-        $_SESSION['message_type'] = "success";
-    }
+        // Generate new unique file name to avoid overwriting
+        $newFileName = 'profile_' . $userId . '_' . time() . '.' . $fileExtension;
 
-    header("Location: ../view/profile.php");
-    exit();
+        $destPath = $uploadDir . $newFileName;
+
+        if (move_uploaded_file($fileTmpPath, $destPath)) {
+            // Success - you can save $newFileName to DB for user's profile photo if you want
+            echo json_encode(["success" => "File uploaded successfully!", "filename" => $newFileName]);
+        } else {
+            echo json_encode(["error" => "Error moving uploaded file."]);
+        }
+    } else {
+        echo json_encode(["error" => "Error uploading file. Please try again."]);
+    }
+} else {
+    echo json_encode(["error" => "Invalid request method."]);
 }
 ?>

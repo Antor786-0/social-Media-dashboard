@@ -1,32 +1,50 @@
 <?php
 session_start();
-// File upload 
+require_once("../model/db.php");
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-    $confirmPassword = $_POST['confirmPassword'];
+    $username = trim($_POST['username'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $confirm_password = $_POST['confirmPassword'] ?? '';
 
-    // Simple validation
-    if ($password !== $confirmPassword) {
-        $_SESSION['message'] = "Passwords don't match!";
-        header("Location: ../signup.html");
+    // Validate
+    if ($password !== $confirm_password) {
+        echo "Passwords do not match!";
+        exit();
+    }
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo "Invalid email!";
         exit();
     }
 
     if (strlen($password) < 6) {
-        $_SESSION['message'] = "Password must be at least 6 characters!";
-        header("Location: ../signup.html");
+        echo "Password too short!";
         exit();
     }
 
+    // Hash password
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-    // Store email in session for demo purposes
-    $_SESSION['tempEmail'] = $email;
+    // Insert to DB
+    $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
+    if (!$stmt) {
+        echo "DB Error: " . $conn->error;
+        exit();
+    }
 
-    // Redirect to verification page
-    header("Location: ../verify-email.html");
-    exit();
+    $stmt->bind_param("sss", $username, $email, $hashed_password);
+
+    if ($stmt->execute()) {
+        echo "Registration successful!";
+    } else {
+        echo "Registration failed: " . $stmt->error;
+    }
+
+    $stmt->close();
+    $conn->close();
+} else {
+    echo "Invalid request.";
 }
 ?>

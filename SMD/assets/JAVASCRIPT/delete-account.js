@@ -1,49 +1,75 @@
 document.addEventListener('DOMContentLoaded', function() {
-  // Set username from localStorage
+  // Show username from localStorage
   const email = localStorage.getItem('currentUser');
   if (email) {
     document.getElementById('username').textContent = email.split('@')[0];
   }
-  
-  // Handle data export
+
+  const messageDiv = document.getElementById('message');
+  const modal = document.getElementById('deactivationModal');
+  const twoFactorInput = document.getElementById('twoFactorCode');
+
+  // Export Data button click
   document.getElementById('exportData').addEventListener('click', function() {
-    // In a real app, this would generate a download link
-    showMessage('Data export requested. Check your email for the download link.', 'success');
+    // Simulate request to backend to email/export data
+    fetch('../controller/export_data.php', { method: 'POST', credentials: 'include' })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          showMessage('Data export requested. Check your email for the download link.', 'success');
+        } else {
+          showMessage('Failed to export data: ' + data.message, 'error');
+        }
+      })
+      .catch(() => showMessage('Network error. Please try again.', 'error'));
   });
-  
-  // Handle deactivation start
+
+  // Show deactivation modal
   document.getElementById('startDeactivation').addEventListener('click', function() {
-    document.getElementById('deactivationModal').style.display = 'flex';
+    modal.style.display = 'flex';
   });
-  
-  // Handle modal cancellation
+
+  // Cancel deactivation
   document.getElementById('cancelDeactivation').addEventListener('click', function() {
-    document.getElementById('deactivationModal').style.display = 'none';
+    modal.style.display = 'none';
+    twoFactorInput.value = '';
   });
-  
-  // Handle deactivation confirmation
+
+  // Confirm deactivation
   document.getElementById('confirmDeactivation').addEventListener('click', function() {
-    const twoFactorCode = document.getElementById('twoFactorCode').value;
-    
+    const twoFactorCode = twoFactorInput.value.trim();
     if (!twoFactorCode) {
-      showMessage('Please enter 2FA code', 'error');
+      showMessage('Please enter your 2FA code.', 'error');
       return;
     }
-  
-    
-    // Show success message and redirect
-    showMessage('Account scheduled for deactivation.', 'success');
-    document.getElementById('deactivationModal').style.display = 'none';
-    
-    setTimeout(function() {
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('currentUser');
-      window.location.href = 'index.html';
-    }, 1500);
+
+    // Send deactivation request with 2FA code to backend
+    fetch('../controller/deactivate_account.php', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ twoFactorCode })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          showMessage('Account scheduled for deactivation.', 'success');
+          modal.style.display = 'none';
+
+          // Clear localStorage and redirect after short delay
+          setTimeout(() => {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('currentUser');
+            window.location.href = '../index.php';
+          }, 1500);
+        } else {
+          showMessage(data.message || 'Failed to schedule deactivation.', 'error');
+        }
+      })
+      .catch(() => showMessage('Network error. Please try again.', 'error'));
   });
-  
+
   function showMessage(text, type) {
-    const messageDiv = document.getElementById('message');
     messageDiv.textContent = text;
     messageDiv.className = 'message ' + (type === 'success' ? 'success' : 'error');
   }

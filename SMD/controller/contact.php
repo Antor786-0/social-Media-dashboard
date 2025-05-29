@@ -1,42 +1,35 @@
 <?php
 session_start();
+include '../db.php'; // your database connection
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = $_POST['name'] ?? '';
-    $email = $_POST['email'] ?? '';
-    $message = $_POST['message'] ?? '';
-    $captcha = $_POST['captcha'] ?? '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name = trim($_POST['name'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $message = trim($_POST['message'] ?? '');
+    $captcha = trim($_POST['captcha'] ?? '');
 
-    // Simple CAPTCHA validation
-    if (trim($captcha) !== '5') {
-        $_SESSION['message'] = "Incorrect CAPTCHA answer!";
-        $_SESSION['message_type'] = "error";
-        header("Location: ../contact.html");
+    // CAPTCHA check
+    if ($captcha !== '5') {
+        header("Location: ../view/contact.html?flash=" . urlencode("Incorrect CAPTCHA!") . "&type=error");
         exit();
     }
 
-    // Basic email validation
-    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $_SESSION['message'] = "Please enter a valid email address!";
-        $_SESSION['message_type'] = "error";
-        header("Location: ../contact.html");
+    if (empty($name) || empty($email) || empty($message) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        header("Location: ../view/contact.html?flash=" . urlencode("Please fill all fields correctly!") . "&type=error");
         exit();
     }
 
-    // In a real app, you would send the data to a server or email
-    // For demo, store in session to simulate processing
-    $_SESSION['contact_submission'] = [
-        'name' => $name,
-        'email' => $email,
-        'message' => $message
-    ];
+    $stmt = $conn->prepare("INSERT INTO contact_messages (name, email, message) VALUES (?, ?, ?)");
+    $stmt->bind_param("sss", $name, $email, $message);
 
-    // Store success message
-    $_SESSION['message'] = "Message sent successfully!";
-    $_SESSION['message_type'] = "success";
+    if ($stmt->execute()) {
+        header("Location: ../view/contact.html?flash=" . urlencode("Message sent successfully!") . "&type=success");
+    } else {
+        header("Location: ../view/contact.html?flash=" . urlencode("Failed to submit message.") . "&type=error");
+    }
 
-    // Redirect back to contact page
-    header("Location: ../contact.html");
+    $stmt->close();
+    $conn->close();
     exit();
 }
 ?>

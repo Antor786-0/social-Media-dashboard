@@ -1,3 +1,11 @@
+<?php
+
+session_start();
+require_once("model/db.php");
+
+// Redirect logged-in users to dashboard
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
