@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once("../model/db.php"); // your DB connection here
+require_once("../model/db.php"); 
 
 header('Content-Type: application/json');
 
@@ -9,10 +9,8 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     exit();
 }
 
-$newPassword = $_POST['newPassword'] ?? '';
-$confirmPassword = $_POST['confirmPassword'] ?? '';
-
-// Server-side validation
+      $newPassword = $_POST['newPassword'] ?? '';
+      $confirmPassword = $_POST['confirmPassword'] ?? '';
 if ($newPassword !== $confirmPassword) {
     echo json_encode(['error' => "Passwords don't match!"]);
     exit();
@@ -23,31 +21,27 @@ if (strlen($newPassword) < 6) {
     exit();
 }
 
-// Check reset email in session (sent from forgot password flow)
 if (!isset($_SESSION['resetEmail'])) {
     echo json_encode(['error' => 'Session expired or invalid request. Please try again.']);
     exit();
 }
 
-$email = $_SESSION['resetEmail'];
-
-// Hash the new password
-$hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-
-$stmt = $conn->prepare("UPDATE users SET password = ? WHERE email = ?");
+      $email = $_SESSION['resetEmail'];
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+      $stmt = $conn->prepare("UPDATE users SET password = ? WHERE email = ?");
 if (!$stmt) {
     echo json_encode(['error' => 'Database error: prepare failed.']);
     exit();
 }
-$stmt->bind_param("ss", $hashedPassword, $email);
+     $stmt->bind_param("ss", $hashedPassword, $email);
 
 if ($stmt->execute()) {
-    // Unset reset email after successful reset
+
     unset($_SESSION['resetEmail']);
     echo json_encode(['success' => 'Password reset successfully!']);
-} else {
-    echo json_encode(['error' => 'Failed to reset password. Please try again.']);
-}
+  } else {
+          echo json_encode(['error' => 'Failed to reset password. Please try again.']);
+         }
 
 $stmt->close();
 $conn->close();

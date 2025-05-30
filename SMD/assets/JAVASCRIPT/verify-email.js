@@ -9,10 +9,9 @@ document.getElementById('resendForm').addEventListener('submit', function(e) {
         method: 'POST',
         body: formData,
     })
-    .then(response => response.text())  // or json if your PHP returns json
+    .then(response => response.text())  
     .then(data => {
-        // In this example, PHP redirects, so not much to do here
-        // Instead, you can reload page or show message from session
+    
         messageDiv.textContent = "Verification email resent! Please check your inbox.";
         messageDiv.style.color = 'green';
     })

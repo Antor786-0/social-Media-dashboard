@@ -1,39 +1,32 @@
-// albums.js
-
-// Handle drag-and-drop
 function handleDrop(event) {
     event.preventDefault();
     const files = event.dataTransfer.files;
     processFiles(files);
 }
-
-// Handle click-to-upload
 document.getElementById('photoUpload').addEventListener('change', (event) => {
     const files = event.target.files;
     processFiles(files);
 });
 
-// Trigger file input click when upload area is clicked
 document.querySelector('.upload-area').addEventListener('click', () => {
     document.getElementById('photoUpload').click();
 });
 
-// Process uploaded files
 function processFiles(files) {
     const albumName = document.getElementById('albumName').value.trim() || 'Untitled Album';
 
     Array.from(files).forEach((file) => {
-        if (!file.type.startsWith('image/')) {
+if (!file.type.startsWith('image/')) {
             alert(`${file.name} is not an image file.`);
             return;
         }
 
         uploadToServer(file, albumName, (response) => {
-            if (response.success) {
+if (response.success) {
                 addPhotoToAlbum(albumName, response.filePath, file.name);
-            } else {
+    } else {
                 alert(response.message || 'Failed to upload image.');
-            }
+           }
         });
     });
 }
@@ -41,24 +34,22 @@ function processFiles(files) {
 function addPhotoToAlbum(albumName, filePath, altText) {
     let albumContainer = document.getElementById(`album-${albumName}`);
 
-    // If album container doesn't exist, create it and fetch album data
-    if (!albumContainer) {
+if (!albumContainer) {
         albumContainer = document.createElement('div');
-        albumContainer.id = `album-${albumName}`;
-        albumContainer.className = 'album';
-        albumContainer.innerHTML = `<h3>${albumName}</h3>`;
-        document.getElementById('albumList').appendChild(albumContainer);
+         albumContainer.id = `album-${albumName}`;
+          albumContainer.className = 'album';
+           albumContainer.innerHTML = `<h3>${albumName}</h3>`;
+             document.getElementById('albumList').appendChild(albumContainer);
     }
 
-    const img = document.createElement('img');
-    img.src = filePath;
-    img.alt = altText;
-    img.style.maxWidth = '150px';
-    img.style.margin = '5px';
+        const img = document.createElement('img');
+             img.src = filePath;
+            img.alt = altText;
+          img.style.maxWidth = '150px';
+         img.style.margin = '5px';
     albumContainer.appendChild(img);
 }
 
-// Upload file to server
 function uploadToServer(file, albumName, callback) {
     const formData = new FormData();
     formData.append('photo', file);
@@ -76,16 +67,13 @@ function uploadToServer(file, albumName, callback) {
         });
 }
 
-// Handle album creation manually
 document.getElementById('createAlbum').addEventListener('click', () => {
     const albumNameInput = document.getElementById('albumName');
     const albumName = albumNameInput.value.trim();
-    if (!albumName) {
+if (!albumName) {
         alert('Please enter an album name.');
         return;
     }
-
-    // Create album on server first
     fetch('../controller/create-album.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -93,20 +81,19 @@ document.getElementById('createAlbum').addEventListener('click', () => {
     })
         .then((res) => res.json())
         .then((data) => {
-            if (data.success) {
-                // Add album container to UI
+if (data.success) {
                 let albumList = document.getElementById('albumList');
-                if (!document.getElementById(`album-${albumName}`)) {
-                    let albumContainer = document.createElement('div');
+if (!document.getElementById(`album-${albumName}`)) {
+               let albumContainer = document.createElement('div');
                     albumContainer.id = `album-${albumName}`;
-                    albumContainer.className = 'album';
-                    albumContainer.innerHTML = `<h3>${albumName}</h3>`;
-                    albumList.appendChild(albumContainer);
+                     albumContainer.className = 'album';
+                      albumContainer.innerHTML = `<h3>${albumName}</h3>`;
+                       albumList.appendChild(albumContainer);
                 }
                 albumNameInput.value = '';
-            } else {
-                alert(data.message || 'Failed to create album.');
-            }
+    } else {
+            alert(data.message || 'Failed to create album.');
+           }
         })
-        .catch(() => alert('Network error when creating album.'));
+            .catch(() => alert('Network error when creating album.'));
 });

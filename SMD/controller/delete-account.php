@@ -14,7 +14,6 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// Get input JSON data
 $input = json_decode(file_get_contents('php://input'), true);
 $twoFactorCode = trim($input['twoFactorCode'] ?? '');
 
@@ -23,33 +22,27 @@ if (empty($twoFactorCode)) {
     exit;
 }
 
-$user_id = $_SESSION['user_id'];
-
-// Here you can validate 2FA code from DB or service. For demo, assume it matches.
-$stmt = $conn->prepare("SELECT two_factor_code FROM users WHERE id = ?");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$stmt->bind_result($dbTwoFactorCode);
-$stmt->fetch();
-$stmt->close();
+      $user_id = $_SESSION['user_id'];
+        $stmt = $conn->prepare("SELECT two_factor_code FROM users WHERE id = ?");
+          $stmt->bind_param("i", $user_id);
+              $stmt->execute();
+           $stmt->bind_result($dbTwoFactorCode);
+         $stmt->fetch();
+       $stmt->close();
 
 if ($dbTwoFactorCode !== $twoFactorCode) {
     echo json_encode(["success" => false, "message" => "Invalid 2FA code."]);
     exit;
-}
+}     $deactivationDate = date("Y-M-D H:I:S", strtotime("+30 days"));
 
-// Schedule deactivation date 30 days from now
-$deactivationDate = date("Y-m-d H:i:s", strtotime("+30 days"));
-
-// Update user table to mark deactivation requested
-$stmt = $conn->prepare("UPDATE users SET deactivation_requested = 1, deactivation_date = ? WHERE id = ?");
-$stmt->bind_param("si", $deactivationDate, $user_id);
+      $stmt = $conn->prepare("UPDATE users SET deactivation_requested = 1, deactivation_date = ? WHERE id = ?");
+      $stmt->bind_param("si", $deactivationDate, $user_id);
 
 if ($stmt->execute()) {
-    echo json_encode(["success" => true, "message" => "Account deactivation scheduled successfully."]);
+         echo json_encode(["success" => true, "message" => "Account deactivation scheduled successfully."]);
 } else {
-    echo json_encode(["success" => false, "message" => "Failed to schedule deactivation: " . $stmt->error]);
-}
+         echo json_encode(["success" => false, "message" => "Failed to schedule deactivation: " . $stmt->error]);
+       }
 
 $stmt->close();
 $conn->close();

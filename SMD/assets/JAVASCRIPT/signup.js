@@ -2,18 +2,21 @@ document.getElementById('signupForm').addEventListener('submit', function(e) {
   e.preventDefault();
 
   const form = document.getElementById('signupForm');
+  const message = document.getElementById('message');
   const formData = new FormData(form);
 
   const password = formData.get('password');
   const confirmPassword = formData.get('confirmPassword');
 
-  if (password !== confirmPassword) {
-    document.getElementById('message').textContent = "Passwords don't match!";
+  message.style.color = "red";
+
+if (password !== confirmPassword) {
+    message.textContent = "Passwords don't match!";
     return;
   }
 
-  if (password.length < 6) {
-    document.getElementById('message').textContent = "Password must be at least 6 characters!";
+if (password.length < 6) {
+    message.textContent = "Password must be at least 6 characters!";
     return;
   }
 
@@ -23,9 +26,15 @@ document.getElementById('signupForm').addEventListener('submit', function(e) {
   })
   .then(response => response.text())
   .then(data => {
-    document.getElementById('message').textContent = data;
+    message.textContent = data;
+if (data.includes("successful")) {
+      message.style.color = "green";
+      setTimeout(() => {
+        window.location.href = 'login.html';
+      }, 1500);
+    }
   })
   .catch(error => {
-    document.getElementById('message').textContent = "Error: " + error;
+    message.textContent = "Error: " + error;
   });
 });

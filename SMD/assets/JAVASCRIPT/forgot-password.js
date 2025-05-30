@@ -5,7 +5,7 @@ document.getElementById('forgotForm').addEventListener('submit', function(e) {
   const messageDiv = document.getElementById('message');
   const email = emailInput.value.trim();
 
-  if (!email) {
+if (!email) {
     messageDiv.textContent = "Please enter your email.";
     messageDiv.style.color = "red";
     return;
@@ -18,17 +18,16 @@ document.getElementById('forgotForm').addEventListener('submit', function(e) {
   })
   .then(response => response.json())
   .then(data => {
-    if (data.success) {
+if (data.success) {
       messageDiv.textContent = data.message;
       messageDiv.style.color = "green";
-      // Optionally redirect to reset password page after delay
       setTimeout(() => {
         window.location.href = 'reset-password.html';
       }, 2000);
-    } else {
-      messageDiv.textContent = data.message;
-      messageDiv.style.color = "red";
-    }
+  } else {
+          messageDiv.textContent = data.message;
+          messageDiv.style.color = "red";
+         }
   })
   .catch(err => {
     messageDiv.textContent = "An error occurred. Please try again.";
