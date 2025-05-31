@@ -3,21 +3,21 @@ document.addEventListener('DOMContentLoaded', function() {
 if (email) {
     document.getElementById('username').textContent = email.split('@')[0];
   }
-  const messageDiv = document.getElementById('message');
-  const modal = document.getElementById('deactivationModal');
-  const twoFactorInput = document.getElementById('twoFactorCode');
-  document.getElementById('exportData').addEventListener('click', function() {
+       const messageDiv = document.getElementById('message');
+          const modal = document.getElementById('deactivationModal');
+             const twoFactorInput = document.getElementById('twoFactorCode');
+                document.getElementById('exportData').addEventListener('click', function() {
 
-    fetch('../controller/export_data.php', { method: 'POST', credentials: 'include' })
-      .then(res => res.json())
-      .then(data => {
+                  fetch('../controller/export_data.php', { method: 'POST', credentials: 'include' })
+                    .then(res => res.json())
+                      .then(data => {
 if (data.success) {
-          showMessage('Data export requested. Check your email for the download link.', 'success');
+                           showMessage('Data export requested. Check your email for the download link.', 'success');
    } else {
-           showMessage('Failed to export data: ' + data.message, 'error');
+                              showMessage('Failed to export data: ' + data.message, 'error');
           }
       })
-      .catch(() => showMessage('Network error. Please try again.', 'error'));
+                                  .catch(() => showMessage('Network error. Please try again.', 'error'));
   });
 
   document.getElementById('startDeactivation').addEventListener('click', function() {
